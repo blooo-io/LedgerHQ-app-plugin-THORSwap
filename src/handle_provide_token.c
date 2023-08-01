@@ -1,4 +1,4 @@
-#include "<Plugin Name>_plugin.h"
+#include "thorswap_plugin.h"
 
 static void sent_network_token(plugin_parameters_t *context) {
     context->decimals_sent = WEI_TO_ETHER;

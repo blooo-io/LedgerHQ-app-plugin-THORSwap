@@ -1,9 +1,9 @@
-#include "<Plugin Name>_plugin.h"
+#include "thorswap_plugin.h"
 
 // Set UI for the "Send" screen.
 static void set_send_ui(ethQueryContractUI_t *msg, plugin_parameters_t *context) {
     switch (context->selectorIndex) {
-        case <Plugin Function Name>:
+        case SWAP:
             strlcpy(msg->title, "Send", msg->titleLength);
             break;
         default:
@@ -30,7 +30,7 @@ static void set_send_ui(ethQueryContractUI_t *msg, plugin_parameters_t *context)
 // Set UI for "Receive" screen.
 static void set_receive_ui(ethQueryContractUI_t *msg, plugin_parameters_t *context) {
     switch (context->selectorIndex) {
-        case <Plugin Function Name>:
+        case SWAP:
             strlcpy(msg->title, "Receive", msg->titleLength);
             break;
         default:
@@ -61,54 +61,51 @@ static void set_warning_ui(ethQueryContractUI_t *msg,
     strlcpy(msg->msg, "Unknown token", msg->msgLength);
 }
 
+static void set_recipient_ui(ethQueryContractUI_t *msg, plugin_parameters_t *context) {
+    strlcpy(msg->title, "Recipient", msg->titleLength);
+    msg->msg[0] = '0';
+    msg->msg[1] = 'x';
+    getEthAddressStringFromBinary((uint8_t *) context->recipient_address,
+                                  msg->msg + 2,
+                                  msg->pluginSharedRW->sha3,
+                                  0);
+}
+
 // Helper function that returns the enum corresponding to the screen that should be displayed.
 static screens_t get_screen(ethQueryContractUI_t *msg,
                             plugin_parameters_t *context __attribute__((unused))) {
     uint8_t index = msg->screenIndex;
 
-// Remove if not used from here
-    bool token_sent_found = context->tokens_found & TOKEN_SENT_FOUND;
     bool token_received_found = context->tokens_found & TOKEN_RECEIVED_FOUND;
 
-    bool both_tokens_found = token_received_found && token_sent_found;
-    bool both_tokens_not_found = !token_received_found && !token_sent_found;
-// To here
-
-    switch (index) {
-        case 0:
-            if (both_tokens_found) {
-                return SEND_SCREEN;
-            } else if (both_tokens_not_found) {
-                return WARN_SCREEN;
-            } else if (token_sent_found) {
-                return SEND_SCREEN;
-            } else if (token_received_found) {
-                return WARN_SCREEN;
+    switch (context->selectorIndex) {
+        case SWAP:
+            switch (index) {
+                case 0:
+                    if (token_received_found) {
+                        return RECEIVE_SCREEN;
+                    } else {
+                        return WARN_SCREEN;
+                    }
+                    break;
+                case 1:
+                    if (token_received_found) {
+                        return RECIPIENT_SCREEN;
+                    } else {
+                        return RECEIVE_SCREEN;
+                    }
+                    break;
+                case 2:
+                    if (token_received_found) {
+                        return ERROR;
+                    } else {
+                        return RECIPIENT_SCREEN;
+                    }
+                    break;
+                default:
+                    return ERROR;
             }
-        case 1:
-            if (both_tokens_found) {
-                return RECEIVE_SCREEN;
-            } else if (both_tokens_not_found) {
-                return SEND_SCREEN;
-            } else if (token_sent_found) {
-                return WARN_SCREEN;
-            } else if (token_received_found) {
-                return SEND_SCREEN;
-            }
-        case 2:
-            if (both_tokens_found) {
-                return ERROR;
-            } else if (both_tokens_not_found) {
-                return WARN_SCREEN;
-            } else {
-                return RECEIVE_SCREEN;
-            }
-        case 3:
-            if (both_tokens_not_found) {
-                return RECEIVE_SCREEN;
-            } else {
-                return ERROR;
-            }
+            break;
         default:
             return ERROR;
     }
@@ -132,6 +129,9 @@ void handle_query_contract_ui(void *parameters) {
             break;
         case WARN_SCREEN:
             set_warning_ui(msg, context);
+            break;
+        case RECIPIENT_SCREEN:
+            set_recipient_ui(msg, context);
             break;
         default:
             PRINTF("Received an invalid screenIndex %d\n", screen);

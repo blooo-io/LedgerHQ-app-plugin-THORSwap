@@ -1,22 +1,39 @@
-#include "<Plugin Name>_plugin.h"
+#include "thorswap_plugin.h"
 
-// Store the amount sent in the form of a string, without any ticker or decimals. These will be
+// Store the amount received in the form of a string, without any ticker or decimals. These will be
 // added when displaying.
-static void handle_amount_sent(ethPluginProvideParameter_t *msg, plugin_parameters_t *context) {
-    memcpy(context->amount_sent, msg->parameter, INT256_LENGTH);
+static void handle_amount_received(ethPluginProvideParameter_t *msg, plugin_parameters_t *context) {
+    copy_parameter(context->amount_received, msg->parameter, INT256_LENGTH);
 }
 
-static void handle_plugin_generic(ethPluginProvideParameter_t *msg,
-                                  plugin_parameters_t *context) {
-    if (context->go_to_offset) {
-        if (msg->parameterOffset != context->offset + SELECTOR_SIZE) {
-            return;
-        }
-        context->go_to_offset = false;
-    }
+static void handle_token_received(ethPluginProvideParameter_t *msg, plugin_parameters_t *context) {
+    copy_address(context->contract_address_received, msg->parameter, INT256_LENGTH);
+}
+
+static void handle_recipient_address(ethPluginProvideParameter_t *msg,
+                                     plugin_parameters_t *context) {
+    copy_address(context->recipient_address, msg->parameter, INT256_LENGTH);
+}
+
+static void handle_swap(ethPluginProvideParameter_t *msg, plugin_parameters_t *context) {
     switch (context->next_param) {
-        case AMOUNT_SENT:
-            handle_amount_sent(msg, context);
+        case TOKEN_RECEIVED:
+            handle_token_received(msg, context);
+            printf_hex_array("Token sent: 0x", ADDRESS_LENGTH, context->contract_address_received);
+            context->next_param = TOKEN_SENT;
+            break;
+        case TOKEN_SENT:
+            // Do nothing, skip this step
+            context->next_param = RECIPIENT_ADDRESS;
+            break;
+        case RECIPIENT_ADDRESS:
+            handle_recipient_address(msg, context);
+            printf_hex_array("Recipient: 0x", ADDRESS_LENGTH, context->recipient_address);
+            context->next_param = AMOUNT_RECEIVED;
+            break;
+        case AMOUNT_RECEIVED:
+            handle_amount_received(msg, context);
+            printf_hex_array("Amount received: 0x", INT256_LENGTH, context->amount_received);
             context->next_param = NONE;
             break;
         case NONE:
@@ -41,14 +58,24 @@ void handle_provide_parameter(void *parameters) {
            msg->parameter);
 
     msg->result = ETH_PLUGIN_RESULT_OK;
-
-    switch (context->selectorIndex) {
-        case <Plugin Function Name>:
-            handle_plugin_generic(msg, context);
-            break;
-        default:
-            PRINTF("Selector Index %d not supported\n", context->selectorIndex);
-            msg->result = ETH_PLUGIN_RESULT_ERROR;
-            break;
+    if (context->skip) {
+        // Skip this step and decrease skipping counter.
+        context->skip--;
+    } else {
+        // Skip until we reach the offset.
+        if ((context->offset) && msg->parameterOffset != context->offset + SELECTOR_SIZE) {
+            PRINTF("offset: %d, parameterOffset: %d\n", context->offset, msg->parameterOffset);
+            return;
+        }
+        context->offset = 0;
+        switch (context->selectorIndex) {
+            case SWAP:
+                handle_swap(msg, context);
+                break;
+            default:
+                PRINTF("Selector Index %d not supported\n", context->selectorIndex);
+                msg->result = ETH_PLUGIN_RESULT_ERROR;
+                break;
+        }
     }
 }

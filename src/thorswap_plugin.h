@@ -4,9 +4,9 @@
 #include "eth_internals.h"
 #include "eth_plugin_interface.h"
 
-#define NUM_SELECTORS 1
+#define NUM_THORSWAP_SELECTORS 1
 
-#define PLUGIN_NAME "<Plugin Displayed Name>"
+#define PLUGIN_NAME "THORSwap"
 
 #define TOKEN_SENT_FOUND     1       // REMOVE IF NOT USED
 #define TOKEN_RECEIVED_FOUND 1 << 1  // REMOVE IF NOT USED
@@ -19,20 +19,24 @@ extern const uint8_t NULL_ETH_ADDRESS[ADDRESS_LENGTH];    // REMOVE IF NOT USED
     (!memcmp(_addr, PLUGIN_ETH_ADDRESS, ADDRESS_LENGTH) || \
      !memcmp(_addr, NULL_ETH_ADDRESS, ADDRESS_LENGTH))
 
-typedef enum {<Plugin Function Name> } selector_t;
+typedef enum { SWAP } selector_t;
 
-extern const uint8_t *const <Plugin Uppercase Name>_SELECTORS[NUM_<Plugin Uppercase Name>_SELECTORS];
+extern const uint8_t *const THORSWAP_SELECTORS[NUM_THORSWAP_SELECTORS];
 
 typedef enum {
     SEND_SCREEN,
     RECEIVE_SCREEN,
+    RECIPIENT_SCREEN,
     WARN_SCREEN,
     ERROR,
 } screens_t;
 
-#define AMOUNT_SENT     0  // Amount sent by the user to the contract.
-#define AMOUNT_RECEIVED 1  // Amount sent by the contract to the user.
-#define NONE            2  // Placeholder variant to be set when parsing is done.
+#define AMOUNT_SENT       0  // Amount sent by the user to the contract.
+#define AMOUNT_RECEIVED   1  // Amount sent by the contract to the user.
+#define TOKEN_SENT        2  // Token sent by the user to the contract.
+#define TOKEN_RECEIVED    3  // Token sent by the contract to the user.
+#define RECIPIENT_ADDRESS 4  // Recipient of the contract call.
+#define NONE              5  // Placeholder variant to be set when parsing is done.
 
 // Number of decimals used when the token wasn't found in the CAL.
 #define DEFAULT_DECIMAL WEI_TO_ETHER
@@ -46,6 +50,7 @@ typedef struct plugin_parameters_t {
     uint8_t amount_received[INT256_LENGTH];
     uint8_t contract_address_sent[ADDRESS_LENGTH];
     uint8_t contract_address_received[ADDRESS_LENGTH];
+    uint8_t recipient_address[ADDRESS_LENGTH];
     char ticker_sent[MAX_TICKER_LEN];
     char ticker_received[MAX_TICKER_LEN];
 
