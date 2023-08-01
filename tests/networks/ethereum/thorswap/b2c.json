@@ -1,0 +1,19 @@
+{
+    "chainId": 1,
+    "contracts": [
+        {
+            "address": "0x213255345a740324cbce0242e32076ab735906e2",
+            "contractName": "TSSwapGeneric",
+            "selectors": {
+                "0xb5b4527a": {
+                    "erc20OfInterest": [
+                        "tokenIn"
+                    ],
+                    "method": "swap",
+                    "plugin": "thorswap"
+                }
+            }
+        }
+    ],
+    "name": "thorswap"
+}
