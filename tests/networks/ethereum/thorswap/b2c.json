@@ -13,6 +13,17 @@
                     "plugin": "thorswap"
                 }
             }
+        },
+        {
+            "address": "0xad545d047e34862121695f8e37aeeb71324a9e78",
+            "contractName": "TSLedgerAdapter",
+            "selectors": {
+                "0x4a95961e": {
+                    "erc20OfInterest": [],
+                    "method": "ledgerCall",
+                    "plugin": "thorswap"
+                }
+            }
         }
     ],
     "name": "thorswap"

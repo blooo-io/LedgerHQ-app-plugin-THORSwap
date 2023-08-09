@@ -38,6 +38,9 @@ void handle_init_contract(void *parameters) {
         case SWAP:
             context->next_param = TOKEN_RECEIVED;
             break;
+        case SWAPIN:
+            context->next_param = SKIP;
+            break;
         default:
             PRINTF("Missing selectorIndex\n");
             msg->result = ETH_PLUGIN_RESULT_ERROR;

@@ -5,13 +5,15 @@
 // You can check TSSwapGeneric methods here :
 // https://etherscan.io/address/0x213255345a740324cbCE0242e32076Ab735906e2
 //
+// You can check TSLedgerAdapter methods here :
+// https://etherscan.io/address/0xaD545d047E34862121695F8E37aeEB71324a9E78
 //
 static const uint8_t THORSWAP_SWAP_SELECTOR[SELECTOR_SIZE] = {0xb5, 0xb4, 0x52, 0x7a};
+static const uint8_t THORSWAP_SWAPIN_SELECTOR[SELECTOR_SIZE] = {0x4a, 0x95, 0x96, 0x1e};
 
 // Array of all the different THORSwap selectors.
-const uint8_t *const THORSWAP_SELECTORS[NUM_THORSWAP_SELECTORS] = {
-    THORSWAP_SWAP_SELECTOR,
-};
+const uint8_t *const THORSWAP_SELECTORS[NUM_THORSWAP_SELECTORS] = {THORSWAP_SWAP_SELECTOR,
+                                                                   THORSWAP_SWAPIN_SELECTOR};
 
 // Ask dummy address ETH
 // Remove if not used
