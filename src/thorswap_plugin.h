@@ -4,7 +4,7 @@
 #include "eth_internals.h"
 #include "eth_plugin_interface.h"
 
-#define NUM_THORSWAP_SELECTORS 2
+#define NUM_THORSWAP_SELECTORS 3
 
 #define PLUGIN_NAME "THORSwap"
 
@@ -19,7 +19,7 @@ extern const uint8_t NULL_ETH_ADDRESS[ADDRESS_LENGTH];    // REMOVE IF NOT USED
     (!memcmp(_addr, PLUGIN_ETH_ADDRESS, ADDRESS_LENGTH) || \
      !memcmp(_addr, NULL_ETH_ADDRESS, ADDRESS_LENGTH))
 
-typedef enum { SWAP, SWAPIN } selector_t;
+typedef enum { SWAP, SWAPIN, DEPOSIT_WITH_EXPIRY } selector_t;
 
 extern const uint8_t *const THORSWAP_SELECTORS[NUM_THORSWAP_SELECTORS];
 
@@ -28,21 +28,23 @@ typedef enum {
     RECEIVE_SCREEN,
     RECIPIENT_SCREEN,
     CHAIN_SCREEN,
+    MEMO_SCREEN,
     WARN_TOKEN_SCREEN,
     WARN_CHAIN_SCREEN,
     ERROR,
 } screens_t;
 
-#define AMOUNT_SENT       0  // Amount sent by the user to the contract.
-#define AMOUNT_RECEIVED   1  // Amount sent by the contract to the user.
-#define TOKEN_SENT        2  // Token sent by the user to the contract.
-#define TOKEN_RECEIVED    3  // Token sent by the contract to the user.
-#define RECIPIENT_ADDRESS 4  // Recipient of the contract call.
-#define SELL_ASSET_LENGTH 5  // Length of sellAsset.
-#define BUY_ASSET_LENGTH  6  // Length of buyAsset.
-#define SAVE_OFFSET       7  // To save an offset.
-#define SKIP              8  // Placeholder variant to be set when skipping a step or more.
-#define NONE              9  // Placeholder variant to be set when parsing is done.
+#define AMOUNT_SENT       0   // Amount sent by the user to the contract.
+#define AMOUNT_RECEIVED   1   // Amount sent by the contract to the user.
+#define TOKEN_SENT        2   // Token sent by the user to the contract.
+#define TOKEN_RECEIVED    3   // Token sent by the contract to the user.
+#define RECIPIENT_ADDRESS 4   // Recipient of the contract call.
+#define SELL_ASSET_LENGTH 5   // Length of sellAsset.
+#define BUY_ASSET_LENGTH  6   // Length of buyAsset.
+#define SAVE_OFFSET       7   // To save an offset.
+#define MEMO              8   // To save the memo.
+#define SKIP              9   // Placeholder variant to be set when skipping a step or more.
+#define NONE              10  // Placeholder variant to be set when parsing is done.
 
 // Number of decimals used when the token wasn't found in the CAL.
 #define DEFAULT_DECIMAL WEI_TO_ETHER
@@ -175,4 +177,21 @@ static inline uint8_t get_asset_decimals(const uint8_t *asset, uint8_t asset_len
 
 static inline bool is_default_ticker(const char *ticker) {
     return !memcmp(ticker, DEFAULT_TICKER, sizeof(DEFAULT_TICKER));
+}
+
+// This function will copy the memo until the second colon into the parsed_memo buffer
+// The memo is in the following format: "=:xxxxxx:yyyyyyyy..." and we want to copy "=:xxxxxx:"
+static inline void parse_memo(const uint8_t *memo, char *parsed_memo) {
+    uint8_t first_colon_position = 0;
+    while (first_colon_position < INT256_LENGTH && memo[first_colon_position] != ':') {
+        first_colon_position++;
+    }
+    uint8_t second_colon_position = MIN(first_colon_position + 1, INT256_LENGTH - 1);
+    while (second_colon_position < INT256_LENGTH && memo[second_colon_position] != ':') {
+        second_colon_position++;
+    }
+
+    uint8_t memo_length = MIN(second_colon_position + 1, INT256_LENGTH);
+    strncpy(parsed_memo, (const char *) memo, memo_length);
+    parsed_memo[memo_length] = '\0';
 }

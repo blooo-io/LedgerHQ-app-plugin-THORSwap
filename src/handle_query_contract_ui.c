@@ -4,13 +4,13 @@
 static void set_send_ui(ethQueryContractUI_t *msg, plugin_parameters_t *context) {
     strlcpy(msg->title, "Send", msg->titleLength);
     switch (context->selectorIndex) {
-        case SWAP:
+        case SWAPIN:
+            break;
+        case DEPOSIT_WITH_EXPIRY:
             // set network ticker (ETH, BNB, etc) if needed
             if (ADDRESS_IS_NETWORK_TOKEN(context->contract_address_sent)) {
                 strlcpy(context->ticker_sent, msg->network_ticker, sizeof(context->ticker_sent));
             }
-            break;
-        case SWAPIN:
             break;
         default:
             PRINTF("Unhandled selector Index: %d\n", context->selectorIndex);
@@ -100,6 +100,14 @@ static void set_recipient_ui(ethQueryContractUI_t *msg, plugin_parameters_t *con
                                   0);
 }
 
+static void set_memo_ui(ethQueryContractUI_t *msg, plugin_parameters_t *context) {
+    strlcpy(msg->title, "Memo", msg->titleLength);
+    char memo[INT256_LENGTH];
+    parse_memo(context->amount_received, memo);
+    strlcpy(msg->msg, memo, msg->msgLength);
+    memset(memo, 0, strlen(memo));
+}
+
 static screens_t get_screen_swap(ethQueryContractUI_t *msg,
                                  plugin_parameters_t *context __attribute__((unused))) {
     bool token_received_found = context->tokens_found & TOKEN_RECEIVED_FOUND;
@@ -184,6 +192,35 @@ static screens_t get_screen_swapin(ethQueryContractUI_t *msg,
     }
 }
 
+static screens_t get_screen_deposit_with_expiry(ethQueryContractUI_t *msg,
+                                                plugin_parameters_t *context
+                                                __attribute__((unused))) {
+    bool token_sent_found = context->tokens_found & TOKEN_SENT_FOUND;
+
+    switch (msg->screenIndex) {
+        case 0:
+            if (token_sent_found) {
+                return SEND_SCREEN;
+            } else {
+                return WARN_TOKEN_SCREEN;
+            }
+        case 1:
+            if (token_sent_found) {
+                return MEMO_SCREEN;
+            } else {
+                return SEND_SCREEN;
+            }
+        case 2:
+            if (token_sent_found) {
+                return ERROR;
+            } else {
+                return MEMO_SCREEN;
+            }
+        default:
+            return ERROR;
+    }
+}
+
 // Helper function that returns the enum corresponding to the screen that should be displayed.
 static screens_t get_screen(ethQueryContractUI_t *msg,
                             plugin_parameters_t *context __attribute__((unused))) {
@@ -192,6 +229,8 @@ static screens_t get_screen(ethQueryContractUI_t *msg,
             return get_screen_swap(msg, context);
         case SWAPIN:
             return get_screen_swapin(msg, context);
+        case DEPOSIT_WITH_EXPIRY:
+            return get_screen_deposit_with_expiry(msg, context);
         default:
             return ERROR;
     }
@@ -215,6 +254,9 @@ void handle_query_contract_ui(void *parameters) {
             break;
         case CHAIN_SCREEN:
             set_chain_ui(msg, context);
+            break;
+        case MEMO_SCREEN:
+            set_memo_ui(msg, context);
             break;
         case WARN_TOKEN_SCREEN:
             set_warning_token_ui(msg, context);

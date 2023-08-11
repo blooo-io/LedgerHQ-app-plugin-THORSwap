@@ -24,6 +24,19 @@
                     "plugin": "thorswap"
                 }
             }
+        },
+        {
+            "address": "0xd37bbe5744d730a1d98d8dc97c42f0ca46ad7146",
+            "contractName": "THORChain_Router",
+            "selectors": {
+                "0x44bc937b": {
+                    "erc20OfInterest": [
+                        "asset"
+                    ],
+                    "method": "depositWithExpiry",
+                    "plugin": "thorswap"
+                }
+            }
         }
     ],
     "name": "thorswap"

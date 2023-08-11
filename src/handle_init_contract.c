@@ -41,6 +41,9 @@ void handle_init_contract(void *parameters) {
         case SWAPIN:
             context->next_param = SKIP;
             break;
+        case DEPOSIT_WITH_EXPIRY:
+            context->next_param = SKIP;
+            break;
         default:
             PRINTF("Missing selectorIndex\n");
             msg->result = ETH_PLUGIN_RESULT_ERROR;

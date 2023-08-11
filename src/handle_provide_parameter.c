@@ -19,12 +19,25 @@ static void handle_recipient_address(ethPluginProvideParameter_t *msg,
     switch (context->selectorIndex) {
         case SWAP:
             // Using context->contract_address_sent to store recipient address
-            copy_address(context->contract_address_sent, msg->parameter, INT256_LENGTH);
-            return;
+            copy_address(context->contract_address_sent, msg->parameter, ADDRESS_LENGTH);
+            break;
         default:
             PRINTF("Unhandled selector Index: %d\n", context->selectorIndex);
             msg->result = ETH_PLUGIN_RESULT_ERROR;
-            return;
+            break;
+    }
+}
+
+static void handle_memo(ethPluginProvideParameter_t *msg, plugin_parameters_t *context) {
+    switch (context->selectorIndex) {
+        case DEPOSIT_WITH_EXPIRY:
+            // Using context->amount_received to store memo
+            copy_parameter(context->amount_received, msg->parameter, INT256_LENGTH);
+            break;
+        default:
+            PRINTF("Unhandled selector Index: %d\n", context->selectorIndex);
+            msg->result = ETH_PLUGIN_RESULT_ERROR;
+            break;
     }
 }
 
@@ -131,6 +144,42 @@ static void handle_swapin(ethPluginProvideParameter_t *msg, plugin_parameters_t 
     }
 }
 
+static void handle_deposit_with_expiry(ethPluginProvideParameter_t *msg,
+                                       plugin_parameters_t *context) {
+    switch (context->next_param) {
+        case SKIP:
+            // vault already skipped by passing here
+            context->next_param = TOKEN_SENT;
+            break;
+        case TOKEN_SENT:
+            // Save token sent
+            copy_address(context->contract_address_sent, msg->parameter, INT256_LENGTH);
+            PRINTF("Token sent: %.*H\n", ADDRESS_LENGTH, context->contract_address_sent);
+            context->next_param = AMOUNT_SENT;
+            break;
+        case AMOUNT_SENT:
+            // Save amount sent
+            handle_amount_sent(msg, context);
+            PRINTF("Amount sent: %.*H\n", INT256_LENGTH, context->amount_sent);
+            // Skip the next 3 params (memo offset, expiration and memo length)
+            context->skip = 3;
+            context->next_param = MEMO;
+            break;
+        case MEMO:
+            // Save the first line of the memo
+            handle_memo(msg, context);
+            PRINTF("Memo: %.*H\n", INT256_LENGTH, context->amount_received);
+            context->next_param = NONE;
+            break;
+        case NONE:
+            break;
+        default:
+            PRINTF("Param not supported\n");
+            msg->result = ETH_PLUGIN_RESULT_ERROR;
+            break;
+    }
+}
+
 void handle_provide_parameter(void *parameters) {
     ethPluginProvideParameter_t *msg = (ethPluginProvideParameter_t *) parameters;
     plugin_parameters_t *context = (plugin_parameters_t *) msg->pluginContext;
@@ -160,6 +209,9 @@ void handle_provide_parameter(void *parameters) {
                 break;
             case SWAPIN:
                 handle_swapin(msg, context);
+                break;
+            case DEPOSIT_WITH_EXPIRY:
+                handle_deposit_with_expiry(msg, context);
                 break;
             default:
                 PRINTF("Selector Index %d not supported\n", context->selectorIndex);
