@@ -1,0 +1,43 @@
+{
+    "chainId": 1,
+    "contracts": [
+        {
+            "address": "0x213255345a740324cbce0242e32076ab735906e2",
+            "contractName": "TSSwapGeneric",
+            "selectors": {
+                "0xb5b4527a": {
+                    "erc20OfInterest": [
+                        "tokenIn"
+                    ],
+                    "method": "swap",
+                    "plugin": "thorswap"
+                }
+            }
+        },
+        {
+            "address": "0xad545d047e34862121695f8e37aeeb71324a9e78",
+            "contractName": "TSLedgerAdapter",
+            "selectors": {
+                "0x4a95961e": {
+                    "erc20OfInterest": [],
+                    "method": "ledgerCall",
+                    "plugin": "thorswap"
+                }
+            }
+        },
+        {
+            "address": "0xd37bbe5744d730a1d98d8dc97c42f0ca46ad7146",
+            "contractName": "THORChain_Router",
+            "selectors": {
+                "0x44bc937b": {
+                    "erc20OfInterest": [
+                        "asset"
+                    ],
+                    "method": "depositWithExpiry",
+                    "plugin": "thorswap"
+                }
+            }
+        }
+    ],
+    "name": "thorswap"
+}

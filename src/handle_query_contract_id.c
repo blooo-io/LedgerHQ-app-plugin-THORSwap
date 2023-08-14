@@ -1,4 +1,4 @@
-#include "<Plugin Name>_plugin.h"
+#include "thorswap_plugin.h"
 
 void handle_query_contract_id(void *parameters) {
     ethQueryContractID_t *msg = (ethQueryContractID_t *) parameters;
@@ -7,8 +7,14 @@ void handle_query_contract_id(void *parameters) {
     strlcpy(msg->name, PLUGIN_NAME, msg->nameLength);
 
     switch (context->selectorIndex) {
-        case <Plugin Function Name>:
-            strlcpy(msg->version, "First Method", msg->versionLength);
+        case SWAP:
+            strlcpy(msg->version, "Swap", msg->versionLength);
+            break;
+        case SWAPIN:
+            strlcpy(msg->version, "SwapIn", msg->versionLength);
+            break;
+        case DEPOSIT_WITH_EXPIRY:
+            strlcpy(msg->version, "DepositWithExpiry", msg->versionLength);
             break;
         default:
             PRINTF("Selector Index :%d not supported\n", context->selectorIndex);

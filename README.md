@@ -1,16 +1,16 @@
 # Badges
 <Plugin Github Action Badger>
 
-# Ledger <Plugin Name> Plugin
+# Ledger thorswap Plugin
 
-This is a plugin for the Ethereum application which helps parsing and displaying relevant information when signing a <Plugin Name> transaction.
+This is a plugin for the Ethereum application which helps parsing and displaying relevant information when signing a thorswap transaction.
 
 ## Prerequisite
 
 Clone the plugin to a new folder.
 
 ```shell
-git clone https://github.com/blooo-io/<Plugin Repo Name>.git
+git clone https://github.com/blooo-io/LedgerHQ-app-plugin-THORSwap.git
 ```
 
 Then in the same folder clone two more repositories, which is the plugin-tools and app-ethereum.
@@ -40,17 +40,17 @@ cd plugin-tools  # go to plugin folder
 ./start.sh       # run the script start.sh
 ```
 The script will build a docker image and attach a console.
-When the docker image is running go to the "<Plugin Repo Name>" folder and build the ".elf" files.
+When the docker image is running go to the "LedgerHQ-app-plugin-THORSwap" folder and build the ".elf" files.
 ```shell
-cd <Plugin Repo Name>/tests       # go to the tests folder in <Plugin Repo Name>
+cd LedgerHQ-app-plugin-THORSwap/tests       # go to the tests folder in LedgerHQ-app-plugin-THORSwap
 ./build_local_test_elfs.sh              # run the script build_local_test_elfs.sh
 ```
 
 ## Tests
 
-To test the plugin go to the tests folder from the "<Plugin Repo Name>" and run the script "test"
+To test the plugin go to the tests folder from the "LedgerHQ-app-plugin-THORSwap" and run the script "test"
 ```shell
-cd <Plugin Repo Name>/tests       # go to the tests folder in <Plugin Repo Name>
+cd LedgerHQ-app-plugin-THORSwap/tests       # go to the tests folder in LedgerHQ-app-plugin-THORSwap
 yarn test                       # run the script test
 ```
 ## Continuous Integration

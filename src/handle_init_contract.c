@@ -1,4 +1,4 @@
-#include "<Plugin Name>_plugin.h"
+#include "thorswap_plugin.h"
 
 // Called once to init.
 void handle_init_contract(void *parameters) {
@@ -20,14 +20,14 @@ void handle_init_contract(void *parameters) {
 
     // Determine a function to call
     size_t i;
-    for (i = 0; i < NUM_<Plugin Uppercase Name>_SELECTORS; i++) {
-        if (memcmp((uint8_t *) PIC(<Plugin Uppercase Name>_SELECTORS[i]), msg->selector, SELECTOR_SIZE) == 0) {
+    for (i = 0; i < NUM_THORSWAP_SELECTORS; i++) {
+        if (memcmp((uint8_t *) PIC(THORSWAP_SELECTORS[i]), msg->selector, SELECTOR_SIZE) == 0) {
             context->selectorIndex = i;
             break;
         }
     }
 
-    if (i == NUM_<Plugin Uppercase Name>_SELECTORS) {
+    if (i == NUM_THORSWAP_SELECTORS) {
         // Selector was not found
         msg->result = ETH_PLUGIN_RESULT_ERROR;
         return;
@@ -35,8 +35,14 @@ void handle_init_contract(void *parameters) {
 
     // Set `next_param` to be the first field we expect to parse.
     switch (context->selectorIndex) {
-        case <Plugin Function Name>:
-            context->next_param = AMOUNT_SENT;
+        case SWAP:
+            context->next_param = TOKEN_RECEIVED;
+            break;
+        case SWAPIN:
+            context->next_param = SKIP;
+            break;
+        case DEPOSIT_WITH_EXPIRY:
+            context->next_param = SKIP;
             break;
         default:
             PRINTF("Missing selectorIndex\n");
