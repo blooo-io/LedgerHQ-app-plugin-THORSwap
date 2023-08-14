@@ -1,50 +1,9 @@
 #include "thorswap_plugin.h"
 
-// Store the amount received in the form of a string, without any ticker or decimals. These will be
-// added when displaying.
-static void handle_amount_received(ethPluginProvideParameter_t *msg, plugin_parameters_t *context) {
-    copy_parameter(context->amount_received, msg->parameter, INT256_LENGTH);
-}
-
-static void handle_amount_sent(ethPluginProvideParameter_t *msg, plugin_parameters_t *context) {
-    copy_parameter(context->amount_sent, msg->parameter, INT256_LENGTH);
-}
-
-static void handle_token_received(ethPluginProvideParameter_t *msg, plugin_parameters_t *context) {
-    copy_address(context->contract_address_received, msg->parameter, INT256_LENGTH);
-}
-
-static void handle_recipient_address(ethPluginProvideParameter_t *msg,
-                                     plugin_parameters_t *context) {
-    switch (context->selectorIndex) {
-        case SWAP:
-            // Using context->contract_address_sent to store recipient address
-            copy_address(context->contract_address_sent, msg->parameter, ADDRESS_LENGTH);
-            break;
-        default:
-            PRINTF("Unhandled selector Index: %d\n", context->selectorIndex);
-            msg->result = ETH_PLUGIN_RESULT_ERROR;
-            break;
-    }
-}
-
-static void handle_memo(ethPluginProvideParameter_t *msg, plugin_parameters_t *context) {
-    switch (context->selectorIndex) {
-        case DEPOSIT_WITH_EXPIRY:
-            // Using context->amount_received to store memo
-            copy_parameter(context->amount_received, msg->parameter, INT256_LENGTH);
-            break;
-        default:
-            PRINTF("Unhandled selector Index: %d\n", context->selectorIndex);
-            msg->result = ETH_PLUGIN_RESULT_ERROR;
-            break;
-    }
-}
-
 static void handle_swap(ethPluginProvideParameter_t *msg, plugin_parameters_t *context) {
     switch (context->next_param) {
         case TOKEN_RECEIVED:
-            handle_token_received(msg, context);
+            copy_address(context->contract_address_received, msg->parameter, INT256_LENGTH);
             printf_hex_array("Token sent: 0x", ADDRESS_LENGTH, context->contract_address_received);
             context->next_param = TOKEN_SENT;
             break;
@@ -53,12 +12,13 @@ static void handle_swap(ethPluginProvideParameter_t *msg, plugin_parameters_t *c
             context->next_param = RECIPIENT_ADDRESS;
             break;
         case RECIPIENT_ADDRESS:
-            handle_recipient_address(msg, context);
+            // Using context->contract_address_sent to store recipient address
+            copy_address(context->contract_address_sent, msg->parameter, ADDRESS_LENGTH);
             printf_hex_array("Recipient: 0x", ADDRESS_LENGTH, context->contract_address_sent);
             context->next_param = AMOUNT_RECEIVED;
             break;
         case AMOUNT_RECEIVED:
-            handle_amount_received(msg, context);
+            copy_parameter(context->amount_received, msg->parameter, INT256_LENGTH);
             printf_hex_array("Amount received: 0x", INT256_LENGTH, context->amount_received);
             context->next_param = NONE;
             break;
@@ -86,7 +46,7 @@ static void handle_swapin(ethPluginProvideParameter_t *msg, plugin_parameters_t 
             break;
         case AMOUNT_SENT:
             // Save sellAmount
-            handle_amount_sent(msg, context);
+            copy_parameter(context->amount_sent, msg->parameter, INT256_LENGTH);
             printf_hex_array("Amount sent: 0x", INT256_LENGTH, context->amount_sent);
             // Skip buyAsset offset
             context->skip = 1;
@@ -94,7 +54,7 @@ static void handle_swapin(ethPluginProvideParameter_t *msg, plugin_parameters_t 
             break;
         case AMOUNT_RECEIVED:
             // Save buyAmountExpected
-            handle_amount_received(msg, context);
+            copy_parameter(context->amount_received, msg->parameter, INT256_LENGTH);
             printf_hex_array("Amount received: 0x", INT256_LENGTH, context->amount_received);
             // Go to memo offset
             context->go_to_offset = true;
@@ -159,15 +119,15 @@ static void handle_deposit_with_expiry(ethPluginProvideParameter_t *msg,
             break;
         case AMOUNT_SENT:
             // Save amount sent
-            handle_amount_sent(msg, context);
+            copy_parameter(context->amount_sent, msg->parameter, INT256_LENGTH);
             PRINTF("Amount sent: %.*H\n", INT256_LENGTH, context->amount_sent);
             // Skip the next 3 params (memo offset, expiration and memo length)
             context->skip = 3;
             context->next_param = MEMO;
             break;
         case MEMO:
-            // Save the first line of the memo
-            handle_memo(msg, context);
+            // Using context->amount_received to store the first line of the memo
+            copy_parameter(context->amount_received, msg->parameter, INT256_LENGTH);
             PRINTF("Memo: %.*H\n", INT256_LENGTH, context->amount_received);
             context->next_param = NONE;
             break;

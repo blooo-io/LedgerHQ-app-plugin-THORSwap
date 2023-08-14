@@ -8,16 +8,13 @@
 
 #define PLUGIN_NAME "THORSwap"
 
-#define TOKEN_SENT_FOUND     1       // REMOVE IF NOT USED
-#define TOKEN_RECEIVED_FOUND 1 << 1  // REMOVE IF NOT USED
+#define TOKEN_SENT_FOUND     1
+#define TOKEN_RECEIVED_FOUND 1 << 1
 
-extern const uint8_t PLUGIN_ETH_ADDRESS[ADDRESS_LENGTH];  // REMOVE IF NOT USED
-extern const uint8_t NULL_ETH_ADDRESS[ADDRESS_LENGTH];    // REMOVE IF NOT USED
+extern const uint8_t NULL_ETH_ADDRESS[ADDRESS_LENGTH];
 
 // Returns 1 if corresponding address is the address for the chain token (ETH, BNB, MATIC,
-#define ADDRESS_IS_NETWORK_TOKEN(_addr)                    \
-    (!memcmp(_addr, PLUGIN_ETH_ADDRESS, ADDRESS_LENGTH) || \
-     !memcmp(_addr, NULL_ETH_ADDRESS, ADDRESS_LENGTH))
+#define ADDRESS_IS_NETWORK_TOKEN(_addr) !memcmp(_addr, NULL_ETH_ADDRESS, ADDRESS_LENGTH)
 
 typedef enum { SWAP, SWAPIN, DEPOSIT_WITH_EXPIRY } selector_t;
 
@@ -66,7 +63,6 @@ typedef struct plugin_parameters_t {
     char ticker_received[MAX_TICKER_LEN];
 
     uint16_t offset;
-    uint16_t checkpoint;
     uint8_t next_param;
     uint8_t tokens_found;
     uint8_t valid;
@@ -78,10 +74,10 @@ typedef struct plugin_parameters_t {
     uint8_t sell_asset_length;
     uint8_t buy_asset_length;
     bool go_to_offset;
-} plugin_parameters_t;  // Remove any variable not used
+} plugin_parameters_t;
 // 32*2 + 2*20 + 11*2 = 126
-// 2*2 + 1*11 = 15
-// 15+126 = 141
+// 2*1 + 1*11 = 13
+// 13+126 = 139
 
 // Piece of code that will check that the above structure is not bigger than 5 * 32.
 // Do not remove this check.
