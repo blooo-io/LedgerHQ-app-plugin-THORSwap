@@ -10,7 +10,7 @@
                         "tokenIn"
                     ],
                     "method": "swap",
-                    "plugin": "thorswap"
+                    "plugin": "THORSwap"
                 }
             }
         },
@@ -21,7 +21,7 @@
                 "0x4a95961e": {
                     "erc20OfInterest": [],
                     "method": "ledgerCall",
-                    "plugin": "thorswap"
+                    "plugin": "THORSwap"
                 }
             }
         },
@@ -34,7 +34,7 @@
                         "asset"
                     ],
                     "method": "depositWithExpiry",
-                    "plugin": "thorswap"
+                    "plugin": "THORSwap"
                 }
             }
         }
