@@ -31,7 +31,7 @@ Smart contracts covered by this plugin are:
 | Network  |  Contract Name  | Address |
 | ---      | ---             | ---     |
 | Ethereum | TSSwapGeneric   | `0x213255345a740324cbCE0242e32076Ab735906e2`|
-| Ethereum | TSLedgerAdapter | `0xaD545d047E34862121695F8E37aeEB71324a9E78`|
+| Ethereum | TSLedgerAdapter | `0xb81c7c2d2d078205d7fa515ddb2dea3d896f4016`|
 | Ethereum | THORChain_Router| `0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146`|
 
 ## Methods

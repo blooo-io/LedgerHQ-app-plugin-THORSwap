@@ -7,7 +7,7 @@ const testDirSuffix = "swapin_normal_flow"; // <= directory to compare device sn
 const testNetwork = "ethereum";
 const signedPlugin = false;
 
-const contractAddr = "0xad545d047e34862121695f8e37aeeb71324a9e78";   // <= Address of the smart contract
+const contractAddr = "0xb81c7c2d2d078205d7fa515ddb2dea3d896f4016";   // <= Address of the smart contract
 const chainID = 1;
 
 // From https://etherscan.io/tx/0x20e72cf73d9fefa92f7af8d263c7abbbdd81f65a3459d583003840fa11c6aab3

@@ -15,7 +15,7 @@
             }
         },
         {
-            "address": "0xad545d047e34862121695f8e37aeeb71324a9e78",
+            "address": "0xb81c7c2d2d078205d7fa515ddb2dea3d896f4016",
             "contractName": "TSLedgerAdapter",
             "selectors": {
                 "0x4a95961e": {
