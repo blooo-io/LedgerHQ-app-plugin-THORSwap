@@ -14,10 +14,9 @@ Clone the plugin to a new folder.
 git clone https://github.com/blooo-io/LedgerHQ-app-plugin-THORSwap.git
 ```
 
-Then in the same folder clone two more repositories, which is the plugin-tools and app-ethereum.
+Then in the same folder clone one more repository, which is the app-ethereum.
 
 ```shell
-git clone https://github.com/LedgerHQ/plugin-tools.git                          #plugin-tools
 git clone --recurse-submodules https://github.com/LedgerHQ/app-ethereum.git     #app-ethereum
 ```
 ## Documentation
@@ -48,10 +47,9 @@ Methods covered by this plugin are:
 
 ## Build
 
-Go to the plugin-tools folder and run the "./start" script.
+Go to the global folder and run the below command.
 ```shell
-cd plugin-tools  # go to plugin folder
-./start.sh       # run the script start.sh
+sudo docker run --rm -ti -v "$(realpath .):/app" --user $(id -u $USER):$(id -g $USER) ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
 ```
 The script will build a docker image and attach a console.
 When the docker image is running go to the "LedgerHQ-app-plugin-THORSwap" folder and build the ".elf" files.
@@ -66,6 +64,57 @@ To test the plugin go to the tests folder from the "LedgerHQ-app-plugin-THORSwap
 ```shell
 cd LedgerHQ-app-plugin-THORSwap/tests       # go to the tests folder in LedgerHQ-app-plugin-THORSwap
 yarn test                       # run the script test
+```
+
+## Loading on a physical device
+
+This step will vary slightly depending on your platform.
+
+Your physical device must be connected, unlocked and the screen showing the dashboard (not inside an application).
+
+**Linux (Ubuntu)**
+
+First make sure you have the proper udev rules added on your host :
+
+```shell
+# Run these commands on your host, from the app's source folder.
+sudo cp .vscode/20-ledger.ledgerblue.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules 
+sudo udevadm trigger
+```
+
+Then once you have [opened a terminal](#with-a-terminal) in the `app-builder` image and [built the app](#compilation-and-load) for the device you want, run the following command :
+
+```shell
+# Run this command from the app-builder container terminal.
+make load    # load the app on a Nano S by default
+```
+
+[Setting the BOLOS_SDK environment variable](#compilation-and-load) will allow you to load on whichever supported device you want.
+
+**macOS / Windows (with PowerShell)**
+
+It is assumed you have [Python](https://www.python.org/downloads/) installed on your computer.
+
+Run these commands on your host from the app's source folder once you have [built the app](#compilation-and-load) for the device you want :
+
+```shell
+# Install Python virtualenv
+python3 -m pip install virtualenv 
+# Create the 'ledger' virtualenv
+python3 -m virtualenv ledger
+```
+
+Enter the Python virtual environment
+
+* macOS : `source ledger/bin/activate`
+* Windows : `.\ledger\Scripts\Activate.ps1`
+
+```shell
+# Install Ledgerblue (tool to load the app)
+python3 -m pip install ledgerblue 
+# Load the app.
+python3 -m ledgerblue.runScript --scp --fileName bin/app.apdu --elfFile bin/app.elf
 ```
 ## Continuous Integration
 

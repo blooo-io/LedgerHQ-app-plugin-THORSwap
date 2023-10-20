@@ -74,12 +74,20 @@ static void handle_swapin(ethPluginProvideParameter_t *msg, plugin_parameters_t 
         }
         case TOKEN_SENT:
             // Save sellAsset in contract_address_sent
-            memcpy(context->contract_address_sent, msg->parameter, context->sell_asset_length);
-            PRINTF("sellAsset: %s\n", context->contract_address_sent);
-            // Skip next sellAsset chunks if any
-            context->go_to_offset = true;
-            context->next_param = BUY_ASSET_LENGTH;
-            break;
+            // Get length of context->contract_address_sent
+            // Check if context->contract_address_sent is <= context->sell_asset_length
+            if (ADDRESS_LENGTH >= context->sell_asset_length) {
+                memcpy(context->contract_address_sent, msg->parameter, context->sell_asset_length);
+                PRINTF("sellAsset: %s\n", context->contract_address_sent);
+                // Skip next sellAsset chunks if any
+                context->go_to_offset = true;
+                context->next_param = BUY_ASSET_LENGTH;
+                break;
+            } else {
+                PRINTF("Error: sellAsset length is too long\n");
+                msg->result = ETH_PLUGIN_RESULT_ERROR;
+                break;
+            }
         case BUY_ASSET_LENGTH: {
             // Truncate buyAsset length if it's too long and save it
             int length = U2BE(msg->parameter, PARAMETER_LENGTH - sizeof(uint16_t));
@@ -90,11 +98,21 @@ static void handle_swapin(ethPluginProvideParameter_t *msg, plugin_parameters_t 
         }
         case TOKEN_RECEIVED:
             // Save buyAsset in contract_address_received
-            memcpy(context->contract_address_received, msg->parameter, context->buy_asset_length);
-            PRINTF("buyAsset: %s\n", context->contract_address_received);
-            // Ignore next buyAsset chunks if any
-            context->next_param = NONE;
-            break;
+            // Get length of context->contract_address_received
+            // Check if context->contract_address_received is <= context->buy_asset_length
+            if (strlen(context->contract_address_received) <= context->buy_asset_length) {
+                memcpy(context->contract_address_received,
+                       msg->parameter,
+                       context->buy_asset_length);
+                PRINTF("buyAsset: %s\n", context->contract_address_received);
+                // Ignore next buyAsset chunks if any
+                context->next_param = NONE;
+                break;
+            } else {
+                PRINTF("Error: buyAsset length is too long\n");
+                msg->result = ETH_PLUGIN_RESULT_ERROR;
+                break;
+            }
         case NONE:
             break;
         default:

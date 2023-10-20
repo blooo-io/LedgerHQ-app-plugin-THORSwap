@@ -91,13 +91,21 @@ static void set_warning_token_ui(ethQueryContractUI_t *msg,
 
 static void set_recipient_ui(ethQueryContractUI_t *msg, plugin_parameters_t *context) {
     strlcpy(msg->title, "Recipient", msg->titleLength);
-    msg->msg[0] = '0';
-    msg->msg[1] = 'x';
-    // The recipient address is stored in context->contract_address_sent
-    getEthAddressStringFromBinary((uint8_t *) context->contract_address_sent,
-                                  msg->msg + 2,
-                                  msg->pluginSharedRW->sha3,
-                                  0);
+    // Get address length
+    // Check if msg is big enough to hold the address
+    if (msg->msgLength >= (2 + ADDRESS_LENGTH * 2 + 1)) {
+        // The recipient address is stored in context->contract_address_sent
+        msg->msg[0] = '0';
+        msg->msg[1] = 'x';
+        getEthAddressStringFromBinary((uint8_t *) context->contract_address_sent,
+                                      msg->msg + 2,
+                                      msg->pluginSharedRW->sha3,
+                                      0);
+    } else {
+        PRINTF("Message size is too small to hold an Ethereum address.\n");
+        msg->result = ETH_PLUGIN_RESULT_ERROR;
+        return;
+    }
 }
 
 static void set_memo_ui(ethQueryContractUI_t *msg, plugin_parameters_t *context) {
