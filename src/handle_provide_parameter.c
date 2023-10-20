@@ -100,8 +100,10 @@ static void handle_swapin(ethPluginProvideParameter_t *msg, plugin_parameters_t 
             // Save buyAsset in contract_address_received
             // Get length of context->contract_address_received
             // Check if context->contract_address_received is <= context->buy_asset_length
-            if(strlen(context->contract_address_received) <= context->buy_asset_length){
-                memcpy(context->contract_address_received, msg->parameter, context->buy_asset_length);
+            if (strlen(context->contract_address_received) <= context->buy_asset_length) {
+                memcpy(context->contract_address_received,
+                       msg->parameter,
+                       context->buy_asset_length);
                 PRINTF("buyAsset: %s\n", context->contract_address_received);
                 // Ignore next buyAsset chunks if any
                 context->next_param = NONE;
