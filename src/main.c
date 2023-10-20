@@ -54,12 +54,8 @@ void dispatch_plugin_calls(int message, void *parameters) {
 }
 
 void handle_query_ui_exception(unsigned int *args) {
-    switch (args[0]) {
-        case ETH_PLUGIN_QUERY_CONTRACT_UI:
-            ((ethQueryContractUI_t *) args[1])->result = ETH_PLUGIN_RESULT_ERROR;
-            break;
-        default:
-            break;
+    if(args[0] != ETH_PLUGIN_QUERY_CONTRACT_UI) {
+        ((ethQueryContractUI_t *) args[1])->result = ETH_PLUGIN_RESULT_ERROR;
     }
 }
 

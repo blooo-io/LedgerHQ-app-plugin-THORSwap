@@ -15,6 +15,8 @@ void handle_init_contract(void *parameters) {
     }
 
     plugin_parameters_t *context = (plugin_parameters_t *) msg->pluginContext;
+    // memset_s(context, sizeof(*context), 0, sizeof(*context));
+    // Does not work because 'undefined reference to `memset_s' error'
     memset(context, 0, sizeof(*context));
     context->valid = 1;
 
