@@ -76,7 +76,7 @@ static void handle_swapin(ethPluginProvideParameter_t *msg, plugin_parameters_t 
             // Save sellAsset in contract_address_sent
             // Get length of context->contract_address_sent
             // Check if context->contract_address_sent is <= context->sell_asset_length
-            if (strlen(context->contract_address_sent) <= context->sell_asset_length) {
+            if (ADDRESS_LENGTH >= context->sell_asset_length) {
                 memcpy(context->contract_address_sent, msg->parameter, context->sell_asset_length);
                 PRINTF("sellAsset: %s\n", context->contract_address_sent);
                 // Skip next sellAsset chunks if any
