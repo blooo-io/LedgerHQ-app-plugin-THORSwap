@@ -106,7 +106,6 @@ static void set_recipient_ui(ethQueryContractUI_t *msg, plugin_parameters_t *con
         msg->result = ETH_PLUGIN_RESULT_ERROR;
         return;
     }
-
 }
 
 static void set_memo_ui(ethQueryContractUI_t *msg, plugin_parameters_t *context) {
