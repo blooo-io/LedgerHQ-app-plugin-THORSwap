@@ -54,7 +54,7 @@ void dispatch_plugin_calls(int message, void *parameters) {
 }
 
 void handle_query_ui_exception(unsigned int *args) {
-    if (args[0] != ETH_PLUGIN_QUERY_CONTRACT_UI) {
+    if (args[0] == ETH_PLUGIN_QUERY_CONTRACT_UI) {
         ((ethQueryContractUI_t *) args[1])->result = ETH_PLUGIN_RESULT_ERROR;
     }
 }
@@ -109,7 +109,7 @@ __attribute__((section(".boot"))) int main(int arg0) {
 
                 // If `ETH_PLUGIN_CHECK_PRESENCE` is set, this means the caller is just trying to
                 // know whether this app exists or not. We can skip `dispatch_plugin_calls`.
-                if (args[0] == ETH_PLUGIN_CHECK_PRESENCE) {
+                if (args[0] != ETH_PLUGIN_CHECK_PRESENCE) {
                     dispatch_plugin_calls(args[0], (void *) args[1]);
                 }
             }
