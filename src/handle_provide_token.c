@@ -43,7 +43,8 @@ void handle_provide_token(void *parameters) {
                 // CAL did not find the token and token is not ETH.
                 context->decimals_received = DEFAULT_DECIMAL;
                 // Use next function to avoid buffer overflow
-                truncate_and_null_terminate_string(DEFAULT_TICKER, sizeof(context->ticker_received));
+                truncate_and_null_terminate_string(DEFAULT_TICKER,
+                                                   sizeof(context->ticker_received));
                 strlcpy(context->ticker_received, DEFAULT_TICKER, sizeof(context->ticker_received));
                 // We will need an additional screen to display a warning message.
                 msg->additionalScreens++;
